@@ -57,7 +57,7 @@ export default function LiveTestPage() {
                 { testId },
                 { headers: { token } }
             );
-            navigate(`/testInfo/${testId}/summary`);
+            navigate(`/testInfo/${testId}/summary`,{replace:true});
         } catch (err) {
             console.error("Failed to submit test", err);
             alert("Error submitting test. Please try again.");

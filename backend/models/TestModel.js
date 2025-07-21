@@ -34,6 +34,10 @@ const TestModel = new Schema({
     type: String,
     enum: ['draft', 'finalized'],
     default: 'draft'
+  },
+   publishResult: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

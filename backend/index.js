@@ -28,6 +28,9 @@ const { FinaliseTestRouter } = require("./routers/FinaliseTestRoute.js");
 const { TestLiveRouter } = require("./routers/TestLiveRoute.js");
 const { LiveQuestionRouter } = require("./routers/LiveQuestionRoute.js");
 const {AttemptedQuestionsRouter} = require("./routers/AttemptedQuestionsRoute.js")
+const { TestSubmissionCheckRouter } = require("./routers/TestSubmissionCheckRoute.js");
+const {TogglePublishResultRouter} = require("./routers/TogglePublishResultRoute.js");
+const { TestSummaryRouter } = require("./routers/TestSummaryRoute.js");
 
 require('dotenv').config();
 
@@ -64,5 +67,8 @@ app.use("/finalTest",FinaliseTestRouter);
 app.use("/testLive",TestLiveRouter);
 app.use("/liveQuestion",LiveQuestionRouter);
 app.use("/question/attempted", AttemptedQuestionsRouter);
+app.use("/test-submission-check", TestSubmissionCheckRouter);
+app.use("/togglePublishResult", TogglePublishResultRouter);
+app.use("/summary",TestSummaryRouter);
 
 app.listen(3000);

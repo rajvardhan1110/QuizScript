@@ -26,6 +26,10 @@ export default function TestInfo() {
             try {
                 const token = localStorage.getItem("usertoken");
 
+                if (!token) {
+                    navigate('/', { replace: true });
+                }
+
                 const response = await axios.get(
                     `http://localhost:3000/testInfo?testId=${testId}`,
                     {
@@ -39,9 +43,9 @@ export default function TestInfo() {
                     setError("Test not found.");
                 } else if (data.msg === "over") {
                     setPhase("over");
-                    navigate(`/testInfo/${testId}/summary`,{replace:true});
+                    navigate(`/testInfo/${testId}/summary`, { replace: true });
                 } else {
-                    console.log(data);
+                    // console.log(data);
                     setPhase(data.phase);
                     setIsRegistered(data.isRegistered);
                     setTitle(data.title || "");
@@ -51,7 +55,27 @@ export default function TestInfo() {
                     if (data.totalTime) setTotalTime(data.totalTime);
 
                     if (data.phase === "running" && data.isRegistered) {
-                        navigate(`/testInfo/${testId}/live`);
+                        try {
+                            const token = localStorage.getItem("usertoken");
+                            if(!token){
+                                navigate('/',{replace:true});
+                            }
+                            const res = await axios.get("http://localhost:3000/test-submission-check", {
+                                params: { testId },
+                                headers: {
+                                    token
+                                }
+                            });
+
+                            if (res.data.submitted) {
+                                navigate(`/testInfo/${testId}/summary`, { replace: true });
+                            } else {
+                                navigate(`/testInfo/${testId}/live`, { replace: true });
+                            }
+                        } catch (error) {
+                            console.error("Error checking test submission:", error);
+                            alert("Something went wrong while checking your submission status. Please try again later.");
+                        }
                     }
                 }
             } catch (err) {

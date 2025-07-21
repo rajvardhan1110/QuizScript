@@ -16,7 +16,7 @@ export default function TestDetails() {
 
     const [testInfoVisible, setTestInfoVisible] = useState(true);
     const [questionsVisible, setQuestionsVisible] = useState(false);
-    const [updateVisible,setUpdateVisible] = useState(false);
+    const [updateVisible, setUpdateVisible] = useState(false);
 
     const [selectedQuestionId, setSelectedQuestionId] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(null);
@@ -26,8 +26,10 @@ export default function TestDetails() {
     const [description, setDescription] = useState("");
     const [testTime, setTestTime] = useState("");
     const [totalTime, setTotalTime] = useState(0);
+    const [testTimeRaw, setTestTimeRaw] = useState(null);
     const [totalMark, setTotalMark] = useState(0);
     const [phase, setPhase] = useState("");
+    const [publishResult, setPublishResult] = useState(false);
     const [allQuestions, setAllQuestions] = useState([]);
     const [error, setError] = useState("");
 
@@ -61,9 +63,11 @@ export default function TestDetails() {
                 setTitle(test.title || "");
                 setDescription(test.description || "");
                 setTestTime(test.testTime ? new Date(test.testTime).toLocaleString() : "Not Set");
+                setTestTimeRaw(test.testTime ? new Date(test.testTime) : null);
                 setTotalTime(test.totalTime || 0);
                 setTotalMark(test.totalMarks || '-');
                 setPhase(test.examTakerPhase);
+                setPublishResult(test.publishResult);
                 setError("");
 
             } catch (err) {
@@ -82,7 +86,7 @@ export default function TestDetails() {
         fetchTestData();
     }, [id, navigate]);
 
-    function backButton(){
+    function backButton() {
         navigate("/admin/home", { replace: true });
     }
 
@@ -98,7 +102,7 @@ export default function TestDetails() {
         setUpdateVisible(false);
     }
 
-    function showUpdate(){
+    function showUpdate() {
         setUpdateVisible(true);
         setTestInfoVisible(false);
         setQuestionsVisible(false);
@@ -112,7 +116,7 @@ export default function TestDetails() {
     async function handleTogglePhase() {
         try {
             const data = await toggleTestPhase(id);
-            setPhase(data.test.examTakerPhase); 
+            setPhase(data.test.examTakerPhase);
             alert(data.msg);
         } catch (err) {
             console.error("Error updating phase:", err);
@@ -122,6 +126,25 @@ export default function TestDetails() {
             } else {
                 setError("Failed to update test phase.");
             }
+        }
+    }
+
+    async function handleTogglePublishResult() {
+        try {
+            const token = localStorage.getItem("usertoken");
+            if (!token) throw new Error("Authentication token missing. Please log in.");
+
+            const res = await axios.post(
+                "http://localhost:3000/togglePublishResult",
+                { testId: id },
+                { headers: { token } }
+            );
+
+            alert(res.data.msg);
+            setPublishResult(res.data.test.publishResult);
+        } catch (err) {
+            console.error("Error toggling result publish:", err);
+            setError(err?.response?.data?.msg || "Failed to toggle result publish status.");
         }
     }
 
@@ -149,6 +172,7 @@ export default function TestDetails() {
                         <p>Total Time: {totalTime} mins</p>
                         <p>Total Marks: {totalMark}</p>
                         <p>Phase: {phase}</p>
+                        <p>Publish Result: {publishResult ? "✅ Published" : "❌ Not Published"}</p>
                     </div>
 
                     <DeleteTestButton testId={id} />
@@ -158,6 +182,13 @@ export default function TestDetails() {
                     ) : (
                         <button onClick={handleTogglePhase}>Convert to Draft</button>
                     )}
+
+                    {testTimeRaw && new Date(testTimeRaw.getTime() + totalTime * 60000) <= new Date() && (
+                        <button onClick={handleTogglePublishResult}>
+                            {publishResult ? "Unpublish Result" : "Publish Result"}
+                        </button>
+                    )}
+
                 </div>
 
             )}
@@ -180,7 +211,7 @@ export default function TestDetails() {
 
             {updateVisible && (
                 <UpdateTestPage
-                   testId={id} title = {title} description = {description} testTime = {testTime} totalTime={totalTime}
+                    testId={id} title={title} description={description} testTime={testTime} totalTime={totalTime}
                 ></UpdateTestPage>
             )
 
