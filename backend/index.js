@@ -31,6 +31,11 @@ const {AttemptedQuestionsRouter} = require("./routers/AttemptedQuestionsRoute.js
 const { TestSubmissionCheckRouter } = require("./routers/TestSubmissionCheckRoute.js");
 const {TogglePublishResultRouter} = require("./routers/TogglePublishResultRoute.js");
 const { TestSummaryRouter } = require("./routers/TestSummaryRoute.js");
+const { ExportResultRouter } = require("./routers/ExportResultRoute.js");
+const {UserSettingsRouter} = require("./routers/UserSettingsRoute.js");
+const { UserInfoRouter } = require("./routers/UserInfoRoute.js");
+const { AdminInfoRouter } = require("./routers/AdminInfoRoute.js");
+const { AdminSettingsRouter } = require("./routers/AdminSettingsRoute.js");
 
 require('dotenv').config();
 
@@ -70,5 +75,10 @@ app.use("/question/attempted", AttemptedQuestionsRouter);
 app.use("/test-submission-check", TestSubmissionCheckRouter);
 app.use("/togglePublishResult", TogglePublishResultRouter);
 app.use("/summary",TestSummaryRouter);
+app.use("/export-result", ExportResultRouter);
+app.use("/user", UserSettingsRouter);
+app.use("/userinfo",UserInfoRouter);
+app.use("/admininfo",AdminInfoRouter);
+app.use("/admin", AdminSettingsRouter);
 
 app.listen(3000);

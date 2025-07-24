@@ -7,6 +7,7 @@ export default function UserSignup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
     const navigate = useNavigate();
 
     async function signupuser() {
@@ -22,7 +23,10 @@ export default function UserSignup() {
             } else if (msg === "User already exists") {
                 setErrorMsg("An account with this email already exists");
             } else if (msg === "successfully user signed up") {
-                navigate("/user/signin");
+                setSuccessMsg("Account created successfully! Redirecting...");
+                setTimeout(() => {
+                    navigate("/user/signin", { replace: true });
+                }, 1000);
             } else {
                 setErrorMsg("Unexpected error. Please try again.");
             }
@@ -53,7 +57,11 @@ export default function UserSignup() {
                     {errorMsg && (
                         <div className="text-red-500 text-sm text-center mb-4">{errorMsg}</div>
                     )}
-                    
+
+                    {successMsg && (
+                        <div className="text-green-500 text-sm text-center mb-4">{successMsg}</div>
+                    )}
+
                     <div className="space-y-5">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -64,7 +72,7 @@ export default function UserSignup() {
                                 onChange={(e) => setName(e.target.value)}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <input
@@ -74,7 +82,7 @@ export default function UserSignup() {
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Create Password</label>
                             <input
@@ -89,22 +97,27 @@ export default function UserSignup() {
                     </div>
 
                     <div className="mt-6 space-y-4">
-                        <button 
+                        <button
                             onClick={signupuser}
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md hover:shadow-indigo-200 focus:outline-none focus:ring-4 focus:ring-indigo-100"
                         >
                             Create Account
                         </button>
-                        
+
                         <div className="text-center pt-2">
                             <p className="text-sm text-gray-600">
                                 Already registered?{' '}
-                                <Link 
-                                    to="/user/signin" 
+                                <a
+                                    href="/user/signin"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        navigate("/user/signin", { replace: true });
+                                    }}
                                     className="font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
                                 >
                                     Sign in here
-                                </Link>
+                                </a>
+
                             </p>
                         </div>
                     </div>

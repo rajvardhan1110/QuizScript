@@ -7,6 +7,7 @@ export default function UserHome() {
     const navigate = useNavigate();
     const [tests, setTests] = useState([]);
     const [error, setError] = useState("");
+    const [query, setQuery] = useState(""); // <-- added for search
 
     useEffect(() => {
         const fetchDraftTests = async () => {
@@ -42,6 +43,16 @@ export default function UserHome() {
         fetchDraftTests();
     }, [navigate]);
 
+    useEffect(() => {
+        const onPopState = () => {
+            localStorage.removeItem("token");
+            navigate("/", { replace: true }); 
+        };
+
+        window.addEventListener("popstate", onPopState);
+        return () => window.removeEventListener("popstate", onPopState);
+    }, [navigate]);
+
     function logout() {
         localStorage.removeItem("token");
         navigate("/");
@@ -55,6 +66,17 @@ export default function UserHome() {
         console.log(test_id);
         navigate(`/test/${test_id}`);
     }
+
+    
+    const filteredTests = tests.filter(test => {
+        const q = query.trim().toLowerCase();
+        if (!q) return true;
+        return (
+            (test.title || "").toLowerCase().includes(q) ||
+            String(test._id).toLowerCase().includes(q)
+        );
+    });
+    
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
@@ -105,15 +127,29 @@ export default function UserHome() {
                     </div>
                 )}
 
-                {/* Page Title */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800">My Tests</h1>
-                    <p className="text-gray-600 mt-2">Manage your curent and upcoming assessments</p>
+                {/* Page Title + Search */}
+                <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">My Tests</h1>
+                        <p className="text-gray-600 mt-2">Manage your curent and upcoming assessments</p>
+                    </div>
+
+                    {/*added: search bar  */}
+                    <div className="w-full sm:w-96">
+                        <input
+                            type="text"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Search by test name or test ID..."
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                        />
+                    </div>
+                  
                 </div>
 
                 {/* Test List */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {tests.length === 0 && !error ? (
+                    {filteredTests.length === 0 && !error ? (
                         <div className="col-span-full bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
                             <h3 className="text-lg font-medium text-gray-700">No draft tests available</h3>
                             <p className="text-gray-500 mt-2">Create your first test to get started</p>
@@ -125,7 +161,7 @@ export default function UserHome() {
                             </button>
                         </div>
                     ) : (
-                        tests.map(test => (
+                        filteredTests.map(test => (
                             <div
                                 key={test._id}
                                 onClick={() => handleCardClick(test._id)}
@@ -137,11 +173,17 @@ export default function UserHome() {
                                             <h2 className="text-xl font-semibold text-gray-800 group-hover:text-indigo-600 line-clamp-2">
                                                 {test.title || "Untitled Test"}
                                             </h2>
+
+                                            {/* added: show test ID */}
+                                            <p className="text-sm text-gray-500 mt-1">
+                                                <span className="font-medium">Test ID:</span> {test._id}
+                                            </p>
+                                           
+
                                             <p className="text-gray-600 mt-1 line-clamp-3">
                                                 {test.description || "No description provided"}
                                             </p>
                                         </div>
-                                        
                                     </div>
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-gray-100">

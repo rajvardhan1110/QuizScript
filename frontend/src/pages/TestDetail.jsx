@@ -28,6 +28,7 @@ export default function TestDetails() {
     const [publishResult, setPublishResult] = useState(false);
     const [allQuestions, setAllQuestions] = useState([]);
     const [error, setError] = useState("");
+    const [copied, setCopied] = useState("");
 
     useEffect(() => {
         const fetchTestData = async () => {
@@ -173,6 +174,27 @@ export default function TestDetails() {
         }
     };
 
+    async function copyTestId() {
+        try {
+            await navigator.clipboard.writeText(id);
+            setCopied("id");
+            setTimeout(() => setCopied(""), 2000);
+        } catch (e) {
+            alert("Failed to copy Test ID");
+        }
+    }
+
+    async function copyTestLink() {
+        try {
+            const link = `http://localhost:5173/testInfo/${id}`;
+            await navigator.clipboard.writeText(link);
+            setCopied("link");
+            setTimeout(() => setCopied(""), 2000);
+        } catch (e) {
+            alert("Failed to copy Test Link");
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 p-6">
             <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
@@ -268,14 +290,14 @@ export default function TestDetails() {
                             {phase === "draft" ? (
                                 <button
                                     onClick={handleTogglePhase}
-                                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-sm"
                                 >
                                     Finalize Test
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleTogglePhase}
-                                    className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors"
+                                    className="px-4 py-2 bg-indigo-400 hover:bg-indigo-500 text-white rounded-lg transition-colors shadow-sm"
                                 >
                                     Convert to Draft
                                 </button>
@@ -284,7 +306,7 @@ export default function TestDetails() {
                             {testTimeRaw && new Date(testTimeRaw.getTime() + totalTime * 60000) <= new Date() && (
                                 <button
                                     onClick={handleTogglePublishResult}
-                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm"
                                 >
                                     {publishResult ? "Unpublish Results" : "Publish Results"}
                                 </button>
@@ -292,9 +314,22 @@ export default function TestDetails() {
 
                             <button
                                 onClick={handleDownload}
-                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors flex items-center gap-2 shadow-sm"
                             >
                                 <span>📥</span> Download Results (CSV)
+                            </button>
+
+                            <button
+                                onClick={copyTestId}
+                                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg"
+                            >
+                                {copied === "id" ? "Copied ID!" : "Copy Test ID"}
+                            </button>
+                            <button
+                                onClick={copyTestLink}
+                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+                            >
+                                {copied === "link" ? "Copied Link!" : "Copy Link"}
                             </button>
                         </div>
                     </div>
@@ -315,7 +350,7 @@ export default function TestDetails() {
                         {/* Question Viewer - centered in remaining space */}
                         <div className="lg:w-2/3 mx-auto">  {/* Added mx-auto to center */}
                             {selectedQuestionId === "add" ? (
-                                <AddQuestion testId={id} onCancel={() => setSelectedQuestionId(null)} />
+                                <AddQuestion testId={id} onCancel={() => setSelectedQuestionId(null)} setAllQuestions={setAllQuestions} setSelectedQuestionId={setSelectedQuestionId} />
                             ) : (
                                 <QuestionViewer questionId={selectedQuestionId} testId={id} />
                             )}

@@ -18,6 +18,16 @@ export default function UserHome() {
     }
 
     useEffect(() => {
+        const onPopState = () => {
+            localStorage.removeItem("usertoken");
+            navigate("/", { replace: true }); 
+        };
+
+        window.addEventListener("popstate", onPopState);
+        return () => window.removeEventListener("popstate", onPopState);
+    }, [navigate]);
+
+    useEffect(() => {
         async function fetchTests() {
             try {
                 const token = localStorage.getItem("usertoken");
@@ -105,7 +115,7 @@ export default function UserHome() {
                     <div>
                         <h2 className="text-3xl font-bold text-gray-800">Available Tests</h2>
                         <p className="text-gray-600 mt-2">
-                            Select a test to begin your assessment<br/>
+                            Select a test to begin your assessment<br />
                             Below you'll find upcoming, ongoing, and completed tests.
                         </p>
                     </div>
@@ -128,7 +138,7 @@ export default function UserHome() {
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
                     </div>
                 )}
-                
+
                 {error && (
                     <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
                         <p className="font-medium">Error:</p>

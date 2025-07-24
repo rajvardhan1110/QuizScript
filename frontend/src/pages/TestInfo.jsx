@@ -148,7 +148,7 @@ export default function TestInfo() {
         }
     };
 
-    // NEW: copy helpers
+    //copy helpers
     const handleCopyTestId = async () => {
         try {
             await navigator.clipboard.writeText(testId);
@@ -207,7 +207,7 @@ export default function TestInfo() {
                         <p className="text-gray-600">{description}</p>
                     </div>
 
-                    {/* NEW: copy buttons */}
+                    {/*  copy buttons */}
                     <div className="flex flex-wrap gap-2">
                         <button
                             onClick={handleCopyTestId}

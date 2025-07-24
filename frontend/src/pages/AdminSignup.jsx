@@ -8,6 +8,8 @@ export default function AdminSignup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [registershow, setRegistershow] = useState(true);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
     const navigate = useNavigate();
 
     async function signupadmin() {
@@ -20,12 +22,15 @@ export default function AdminSignup() {
         try {
             const response = await axios.post("http://localhost:3000/admin/signup", data);
             if (response.data.msg === "invalid format") {
-                alert("Please enter valid information");
+                setErrorMsg("Please enter valid information");
             } else if (response.data.msg === "User already exists") {
-                alert("An account with this email already exists");
+                setErrorMsg("An account with this email already exists");
             } else if (response.data.msg === "successfully admin signed up") {
-                alert("Educator account created successfully");
-                navigate("/admin/home");
+                setSuccessMsg("Educator account created successfully");
+                setTimeout(() => {
+                    navigate("/admin/home");
+                }, 1000);
+
             }
         } catch (e) {
             console.error("Error: ", e);
@@ -46,9 +51,17 @@ export default function AdminSignup() {
                 <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-100">
                     <div className="text-center mb-6">
                         <h1 className="text-2xl font-bold text-gray-800">Educator Registration</h1>
-                       
+
                     </div>
-                    
+
+                    {errorMsg && (
+                        <div className="text-red-500 text-sm text-center mb-4">{errorMsg}</div>
+                    )}
+
+                    {successMsg && (
+                        <div className="text-green-500 text-sm text-center mb-4">{successMsg}</div>
+                    )}
+
                     <div className="space-y-5">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -59,7 +72,7 @@ export default function AdminSignup() {
                                 onChange={(e) => setName(e.target.value)}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <input
@@ -69,7 +82,7 @@ export default function AdminSignup() {
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Create Password</label>
                             <input
@@ -84,22 +97,26 @@ export default function AdminSignup() {
                     </div>
 
                     <div className="mt-6 space-y-4">
-                        <button 
+                        <button
                             onClick={signupadmin}
                             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg font-medium transition-all shadow-md hover:shadow-emerald-200 focus:outline-none focus:ring-4 focus:ring-emerald-100"
                         >
                             Create Educator Account
                         </button>
-                        
+
                         <div className="text-center pt-2">
                             <p className="text-sm text-gray-600">
                                 Already registered?{' '}
-                                <Link 
-                                    to="/admin/signin" 
+                                <a
+                                    href="/admin/signin"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        navigate("/admin/signin", { replace: true });
+                                    }}
                                     className="font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
                                 >
                                     Sign in here
-                                </Link>
+                                </a>
                             </p>
                         </div>
                     </div>
