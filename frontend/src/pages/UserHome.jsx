@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { FaUserAlt } from 'react-icons/fa';
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function UserHome() {
     const navigate = useNavigate();
     const [tests, setTests] = useState([]);
@@ -37,7 +40,7 @@ export default function UserHome() {
                     return;
                 }
 
-                const response = await axios.get("http://localhost:3000/allTests", {
+                const response = await axios.get(`${API}/allTests`, {
                     headers: { token }
                 });
 

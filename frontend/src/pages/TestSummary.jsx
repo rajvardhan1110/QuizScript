@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function TestSummaryPage() {
     const { testId } = useParams();
     const [loading, setLoading] = useState(true);
@@ -24,7 +27,7 @@ export default function TestSummaryPage() {
             }
 
             try {
-                const res = await axios.get(`http://localhost:3000/summary?testId=${testId}`, {
+                const res = await axios.get(`${API}/summary?testId=${testId}`, {
                     headers: { token },
                 });
 

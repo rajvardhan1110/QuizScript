@@ -2,6 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function CreateTest() {
     const navigate = useNavigate();
     const [title, setTitle] = useState("");
@@ -23,7 +26,7 @@ export default function CreateTest() {
 
         try {
             const res = await axios.post(
-                "http://localhost:3000/createtest",
+                `${API}/createtest`,
                 {
                     title: title.trim(),
                     description: description.trim(),

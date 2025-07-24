@@ -1,7 +1,7 @@
 const express = require("express");
 const TogglePublishResultRouter = express.Router();
 const TestModel = require("../models/TestModel");
-const { UserAuthMiddleware } = require("../Middleware/UserAuthMiddleware");
+const { AdminAuthMiddleware } = require("../Middleware/AdminAuthMiddleware");
 
 async function TogglePublishResultHandler(req, res) {
     try {
@@ -37,7 +37,7 @@ async function TogglePublishResultHandler(req, res) {
     }
 }
 
-TogglePublishResultRouter.post("/", UserAuthMiddleware, TogglePublishResultHandler);
+TogglePublishResultRouter.post("/", AdminAuthMiddleware, TogglePublishResultHandler);
 
 module.exports = {
     TogglePublishResultRouter

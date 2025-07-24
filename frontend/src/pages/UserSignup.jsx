@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function UserSignup() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -15,7 +18,7 @@ export default function UserSignup() {
         const data = { name, email, password };
 
         try {
-            const response = await axios.post("http://localhost:3000/user/signup", data);
+            const response = await axios.post(`${API}/user/signup`, data);
             const msg = response.data.msg;
 
             if (msg === "invalid format") {

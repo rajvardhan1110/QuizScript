@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
 export default function AddQuestion({ testId, onCancel, setQuestionsVisible,setAllQuestions,setSelectedQuestionId }) {
+
     const { id } = useParams();
     const [questionText, setQuestionText] = useState("");
     const [options, setOptions] = useState(["", ""]);
@@ -63,7 +66,7 @@ export default function AddQuestion({ testId, onCancel, setQuestionsVisible,setA
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/createQuestion", {
+            const response = await axios.post(`${API}/createQuestion`, {
                 testId,
                 questionText,
                 options: options.map(text => ({ text: text.trim() })),
@@ -97,7 +100,7 @@ export default function AddQuestion({ testId, onCancel, setQuestionsVisible,setA
                     return;
                 }
 
-                const questionsRes = await axios.post("http://localhost:3000/allquestions", {
+                const questionsRes = await axios.post(`${API}/allquestions`, {
                     testId: id
                 }, {
                     headers: { token }

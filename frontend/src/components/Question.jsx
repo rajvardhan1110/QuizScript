@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Option from "./Option";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function Question({ questionId, testId, markAttempted }) {
     const [question, setQuestion] = useState(null);
     const [selected, setSelected] = useState(null);
@@ -11,7 +14,7 @@ export default function Question({ questionId, testId, markAttempted }) {
         async function fetchQuestion() {
             try {
                 const token = localStorage.getItem("usertoken");
-                const res = await axios.post("http://localhost:3000/liveQuestion", {
+                const res = await axios.post(`${API}/liveQuestion`, {
                     questionId,
                     testId
                 }, {
@@ -31,7 +34,7 @@ export default function Question({ questionId, testId, markAttempted }) {
     async function handleOptionSelect(optionId) {
         try {
             const token = localStorage.getItem("usertoken");
-            await axios.post("http://localhost:3000/studentResponse", {
+            await axios.post(`${API}/studentResponse`, {
                 testId,
                 questionId,
                 optionId

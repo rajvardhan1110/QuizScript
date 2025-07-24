@@ -4,6 +4,9 @@ import axios from "axios";
 import { register } from "../api/register";
 import { unregister } from "../api/unregister";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function TestInfo() {
     const { testId } = useParams();
     const navigate = useNavigate();
@@ -34,7 +37,7 @@ export default function TestInfo() {
                 }
 
                 const response = await axios.get(
-                    `http://localhost:3000/testInfo?testId=${testId}`,
+                    `${API}/testInfo?testId=${testId}`,
                     {
                         headers: { token }
                     }
@@ -58,7 +61,7 @@ export default function TestInfo() {
 
                     if (data.phase === "running" && data.isRegistered) {
                         try {
-                            const res = await axios.get("http://localhost:3000/test-submission-check", {
+                            const res = await axios.get(`${API}/test-submission-check`, {
                                 params: { testId },
                                 headers: { token }
                             });

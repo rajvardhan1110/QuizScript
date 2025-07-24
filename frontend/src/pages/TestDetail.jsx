@@ -8,6 +8,9 @@ import DeleteTestButton from "../components/DeleteTestButton";
 import UpdateTestPage from "../components/UpdateTestPage";
 import { toggleTestPhase } from "../api/finaliseTest";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function TestDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -41,14 +44,14 @@ export default function TestDetails() {
                     return;
                 }
 
-                const questionsRes = await axios.post("http://localhost:3000/allquestions", {
+                const questionsRes = await axios.post(`${API}/allquestions`, {
                     testId: id
                 }, {
                     headers: { token }
                 });
                 setAllQuestions(questionsRes.data.questions || []);
 
-                const infoRes = await axios.post("http://localhost:3000/adminTestInfo", {
+                const infoRes = await axios.post(`${API}/adminTestInfo`, {
                     testId: id
                 }, {
                     headers: { token }
@@ -126,11 +129,11 @@ export default function TestDetails() {
 
     async function handleTogglePublishResult() {
         try {
-            const token = localStorage.getItem("usertoken");
+            const token = localStorage.getItem("token");
             if (!token) throw new Error("Authentication token missing. Please log in.");
 
             const res = await axios.post(
-                "http://localhost:3000/togglePublishResult",
+                `${API}/togglePublishResult`,
                 { testId: id },
                 { headers: { token } }
             );
@@ -151,7 +154,7 @@ export default function TestDetails() {
             }
 
             const token = localStorage.getItem("token");
-            const response = await axios.get(`http://localhost:3000/export-result?testId=${id}`, {
+            const response = await axios.get(`${API}/export-result?testId=${id}`, {
                 responseType: "blob",
                 headers: { token }
             });

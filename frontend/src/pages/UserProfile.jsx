@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { FaUserAlt, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function UserProfile() {
     const navigate = useNavigate();
     const [profile, setProfile] = useState({ name: "", email: "" });
@@ -21,7 +24,7 @@ export default function UserProfile() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/userinfo", {
+                const res = await axios.get(`${API}/userinfo`, {
                     headers: { token }
                 });
                 setProfile(res.data);
@@ -37,7 +40,7 @@ export default function UserProfile() {
     const handleFieldChange = async (field) => {
         try {
             const endpoint = field === "name" ? "/change-name" : "/change-email";
-            const res = await axios.patch(`http://localhost:3000/user${endpoint}`,
+            const res = await axios.patch(`${API}/user${endpoint}`,
                 { [field]: formData[field] },
                 { headers: { token } }
             );
@@ -53,7 +56,7 @@ export default function UserProfile() {
 
     const handlePasswordChange = async () => {
         try {
-            const res = await axios.patch("http://localhost:3000/user/change-password", passwordData, {
+            const res = await axios.patch(`${API}/user/change-password`, passwordData, {
                 headers: { token }
             });
             setMessage(res.data.msg || "Password updated successfully");
@@ -67,7 +70,7 @@ export default function UserProfile() {
 
     const handleDeleteAccount = async () => {
         try {
-            const res = await axios.delete("http://localhost:3000/user/delete", {
+            const res = await axios.delete(`${API}/user/delete`, {
                 headers: { token },
                 data: { password: deletePassword }
             });

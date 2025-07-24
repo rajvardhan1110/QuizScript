@@ -6,6 +6,9 @@ import Question from "../components/Question";
 import QuestionNavigator from "../components/QuestionNavigator";
 import Timer from "../components/Timer";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function LiveTestPage() {
     const { testId } = useParams();
     const navigate = useNavigate();
@@ -24,12 +27,12 @@ export default function LiveTestPage() {
                 const headers = { headers: { token } };
 
                 // Fetch test data
-                const testRes = await axios.get(`http://localhost:3000/testLive?testId=${testId}`, headers);
+                const testRes = await axios.get(`${API}/testLive?testId=${testId}`, headers);
                 setQuestions(testRes.data.test.questions);
                 setTestData(testRes.data.test);
 
                 // Fetch attempted question IDs
-                const attemptRes = await axios.get(`http://localhost:3000/question/attempted?testId=${testId}`, headers);
+                const attemptRes = await axios.get(`${API}/question/attempted?testId=${testId}`, headers);
                 setAttemptedQIDs(attemptRes.data.attempted || []);
             } catch (err) {
                 console.error("Error loading test:", err);
@@ -54,7 +57,7 @@ export default function LiveTestPage() {
         try {
             const token = localStorage.getItem("usertoken");
             await axios.post(
-                `http://localhost:3000/studentResult`,
+                `${API}/studentResult`,
                 { testId },
                 { headers: { token } }
             );

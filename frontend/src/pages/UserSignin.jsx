@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function UserSignin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,7 +17,7 @@ export default function UserSignin() {
         setErrorMsg(''); // clear previous errors
 
         try {
-            const response = await axios.post("http://localhost:3000/user/signin", data);
+            const response = await axios.post(`${API}/user/signin`, data);
             const { token, msg } = response.data;
 
             if (token) {

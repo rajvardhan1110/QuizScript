@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function AdminSignup() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -20,7 +23,7 @@ export default function AdminSignup() {
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/admin/signup", data);
+            const response = await axios.post(`${API}/admin/signup`, data);
             if (response.data.msg === "invalid format") {
                 setErrorMsg("Please enter valid information");
             } else if (response.data.msg === "User already exists") {

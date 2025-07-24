@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUserAlt } from 'react-icons/fa';
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function UserHome() {
     const navigate = useNavigate();
     const [tests, setTests] = useState([]);
@@ -20,7 +23,7 @@ export default function UserHome() {
                     return;
                 }
 
-                const res = await axios.get('http://localhost:3000/draft', {
+                const res = await axios.get(`${API}/draft`, {
                     headers: { token }
                 });
 

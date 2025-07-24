@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function UpdateTestPage({ testId, title, description, testTime, totalTime }) {
   const [Title, setTitle] = useState("");
   const [Description, setDescription] = useState("");
@@ -58,7 +61,7 @@ export default function UpdateTestPage({ testId, title, description, testTime, t
 
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.patch("http://localhost:3000/editTest", payload, {
+      const res = await axios.patch(`${API}/editTest`, payload, {
         headers: { token },
       });
 

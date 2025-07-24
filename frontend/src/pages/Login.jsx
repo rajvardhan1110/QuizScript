@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function Login() {
   const navigate = useNavigate();
 

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function QuestionViewer({ questionId, testId }) {
     const [question, setQuestion] = useState(null);
     const [error, setError] = useState(null);
@@ -19,7 +22,7 @@ export default function QuestionViewer({ questionId, testId }) {
         const fetchQuestion = async () => {
             setIsLoading(true);
             try {
-                const res = await axios.post("http://localhost:3000/getQuestion", {
+                const res = await axios.post(`${API}/getQuestion`, {
                     questionId
                 }, {
                     headers: { token }
@@ -45,7 +48,7 @@ export default function QuestionViewer({ questionId, testId }) {
         try {
             const token = localStorage.getItem("token");
 
-            await axios.post("http://localhost:3000/deleteQuestion", {
+            await axios.post(`${API}/deleteQuestion`, {
                 questionId,
                 testId
             }, {

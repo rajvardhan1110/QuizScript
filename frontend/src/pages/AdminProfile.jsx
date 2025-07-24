@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { FaUserTie, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function AdminProfile() {
     const navigate = useNavigate();
     const [profile, setProfile] = useState({ name: "", email: "" });
@@ -21,7 +24,7 @@ export default function AdminProfile() {
     useEffect(() => {
         const fetchAdmin = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/admininfo", {
+                const res = await axios.get(`${API}/admininfo`, {
                     headers: { token }
                 });
                 setProfile(res.data);
@@ -37,7 +40,7 @@ export default function AdminProfile() {
     const handleFieldChange = async (field) => {
         try {
             const endpoint = field === "name" ? "/change-name" : "/change-email";
-            const res = await axios.patch(`http://localhost:3000/admin${endpoint}`,
+            const res = await axios.patch(`${API}/admin${endpoint}`,
                 { [field]: formData[field] },
                 { headers: { token } }
             );
@@ -53,7 +56,7 @@ export default function AdminProfile() {
 
     const handlePasswordChange = async () => {
         try {
-            const res = await axios.patch("http://localhost:3000/admin/change-password", passwordData, {
+            const res = await axios.patch(`${API}/admin/change-password`, passwordData, {
                 headers: { token }
             });
             setMessage(res.data.msg || "Password updated successfully");
@@ -67,7 +70,7 @@ export default function AdminProfile() {
 
     const handleDeleteAccount = async () => {
         try {
-            const res = await axios.delete("http://localhost:3000/admin/delete", {
+            const res = await axios.delete(`${API}/admin/delete`, {
                 headers: { token },
                 data: { password: deletePassword }
             });

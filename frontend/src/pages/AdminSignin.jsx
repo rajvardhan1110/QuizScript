@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function AdminSignin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -18,7 +21,7 @@ export default function AdminSignin() {
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/admin/signin", data);
+            const response = await axios.post(`${API}/admin/signin`, data);
             if (response.data.msg === "invalid email") {
                 setErrorMsg("Invalid email");
             } else if (response.data.msg === "incorrect password") {

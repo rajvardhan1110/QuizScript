@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export default function DeleteTestButton({ testId }) {
   const navigate = useNavigate();
 
@@ -15,7 +18,7 @@ export default function DeleteTestButton({ testId }) {
     }
 
     try {
-      const response = await axios.delete("http://localhost:3000/deleteTest", {
+      const response = await axios.delete(`${API}/deleteTest`, {
         headers: {
           token
         },
