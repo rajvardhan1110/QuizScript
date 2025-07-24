@@ -1,5 +1,8 @@
 import axios from "axios";
 
+import config from "../../apiconfig";
+const API = config.BASE_URL;
+
 export async function toggleTestPhase(testId) {
   const token = localStorage.getItem("token");
 
@@ -7,7 +10,7 @@ export async function toggleTestPhase(testId) {
     throw new Error("Authentication token missing. Please log in.");
   }
 
-  const response = await axios.patch("http://localhost:3000/finalTest", {
+  const response = await axios.patch(`${API}/finalTest`, {
     testId
   }, {
     headers: { token }
