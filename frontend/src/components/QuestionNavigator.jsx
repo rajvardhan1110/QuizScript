@@ -1,5 +1,4 @@
-import React from "react";
-
+// QuestionNavigator.jsx
 export default function QuestionNavigator({
     questions,
     current,
@@ -7,57 +6,32 @@ export default function QuestionNavigator({
     attemptedQIDs,
     onSubmit
 }) {
-    const containerStyle = {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "10px",
-        marginBottom: "20px"
-    };
-
-    const buttonStyle = (index, qid) => ({
-        padding: "10px 15px",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        cursor: "pointer",
-        backgroundColor:
-            current === index
-                ? "#007bff"
-                : attemptedQIDs.includes(qid)
-                ? "#28a745"
-                : "#f8f9fa",
-        color:
-            current === index || attemptedQIDs.includes(qid)
-                ? "white"
-                : "#333",
-        fontWeight: current === index ? "bold" : "normal"
-    });
-
-    const submitButtonStyle = {
-        padding: "10px 20px",
-        backgroundColor: "#dc3545",
-        color: "white",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-        marginTop: "20px",
-        width: "100%"
-    };
-
     return (
-        <div>
-            <h3 style={{ marginBottom: "10px", textAlign: "center" }}>Question Navigator</h3>
-            <div style={containerStyle}>
+        <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 text-center mb-4">Questions</h3>
+            
+            <div className="grid grid-cols-5 gap-2">
                 {questions.map((qid, index) => (
                     <button
                         key={qid}
-                        style={buttonStyle(index, qid)}
                         onClick={() => onJump(index)}
+                        className={`p-3 rounded-lg text-center transition-colors ${
+                            current === index
+                                ? 'bg-indigo-600 text-white'
+                                : attemptedQIDs.includes(qid)
+                                ? 'bg-green-100 text-green-800 border border-green-200'
+                                : 'bg-white text-gray-800 border border-gray-200 hover:bg-gray-50'
+                        }`}
                     >
                         {index + 1}
                     </button>
                 ))}
             </div>
-            <button onClick={onSubmit} style={submitButtonStyle}>
+
+            <button 
+                onClick={onSubmit}
+                className="w-full mt-6 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+            >
                 Submit Test
             </button>
         </div>

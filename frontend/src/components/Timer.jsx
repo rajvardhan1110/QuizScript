@@ -1,3 +1,4 @@
+// Timer.jsx
 import { useEffect, useState } from "react";
 
 export default function Timer({ testTime, totalTime, onTimeUp }) {
@@ -14,29 +15,25 @@ export default function Timer({ testTime, totalTime, onTimeUp }) {
 
             if (diff <= 0) {
                 clearInterval(interval);
-                setTimeLeft("Time up");
+                setTimeLeft("Time's up!");
                 if (onTimeUp) onTimeUp();
             } else {
-                const minutes = Math.floor(diff / 60000);
-                const seconds = Math.floor((diff % 60000) / 1000);
-                setTimeLeft(`${minutes}m ${seconds}s`);
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                setTimeLeft(
+                    `${hours > 0 ? `${hours}h ` : ''}${minutes}m ${seconds}s`
+                );
             }
         }, 1000);
 
         return () => clearInterval(interval);
     }, [testTime, totalTime, onTimeUp]);
 
-    const timerStyle = {
-        marginBottom: "16px",
-        textAlign: "right",
-        fontSize: "20px",
-        fontWeight: "bold",
-        color: "red"
-    };
-
     return (
-        <div style={timerStyle}>
-            {timeLeft || "Loading timer..."}
+        <div className="flex items-center gap-2">
+            <span className="text-red-600 font-bold">{timeLeft || "--:--"}</span>
         </div>
     );
 }

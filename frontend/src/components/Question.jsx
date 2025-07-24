@@ -1,3 +1,4 @@
+// Question.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Option from "./Option";
@@ -45,25 +46,19 @@ export default function Question({ questionId, testId, markAttempted }) {
         }
     }
 
-    if (!question) return <p style={{ color: "#888", textAlign: "center" }}>Loading...</p>;
+    if (!question) return (
+        <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+    );
 
     return (
-        <div style={{
-            padding: "20px",
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: "10px",
-            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-            marginBottom: "20px"
-        }}>
-            <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#333", marginBottom: "16px" }}>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">
                 {question.questionText}
             </h2>
-            <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "10px"
-            }}>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {question.options.map((opt) => (
                     <Option
                         key={opt._id}

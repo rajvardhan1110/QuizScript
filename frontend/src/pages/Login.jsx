@@ -12,24 +12,40 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="p-8 bg-white rounded-lg shadow-md space-y-6">
-        <h1 className="text-2xl font-bold text-center text-gray-800">Welcome</h1>
-        <p className="text-center text-gray-600">Please select your login option</p>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 flex flex-col items-center justify-center p-4">
+      {/* Logo/Branding */}
+      <div className="mb-10">
+        <h1 className="text-4xl font-bold text-indigo-800">
+          <span className="text-indigo-600">Code</span>Script
+        </h1>
+        
+      </div>
+
+      {/* Login Card */}
+      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg space-y-6 border border-gray-100">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
+          <p className="mt-2 text-gray-600">Select your role to continue</p>
+        </div>
+
         <div className="flex flex-col space-y-4">
           <button 
             onClick={forUser}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 
+                      focus:outline-none focus:ring-4 focus:ring-indigo-100 shadow-md hover:shadow-indigo-200"
           >
-            User Login
+            Continue as Student
           </button>
           <button 
             onClick={forAdmin}
-            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 
+                      focus:outline-none focus:ring-4 focus:ring-emerald-100 shadow-md hover:shadow-emerald-200"
           >
-            Admin Login
+            Continue as Educator
           </button>
         </div>
+
+        
       </div>
     </div>
   );

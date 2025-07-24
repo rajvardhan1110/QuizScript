@@ -21,6 +21,9 @@ export default function TestInfo() {
     const [actionError, setActionError] = useState(null);
     const [countdown, setCountdown] = useState("");
 
+    // NEW: small feedback for copy buttons
+    const [copiedWhat, setCopiedWhat] = useState(null); // 'id' | 'link' | null
+
     useEffect(() => {
         const fetchTestInfo = async () => {
             try {
@@ -45,7 +48,6 @@ export default function TestInfo() {
                     setPhase("over");
                     navigate(`/testInfo/${testId}/summary`, { replace: true });
                 } else {
-                    // console.log(data);
                     setPhase(data.phase);
                     setIsRegistered(data.isRegistered);
                     setTitle(data.title || "");
@@ -56,15 +58,9 @@ export default function TestInfo() {
 
                     if (data.phase === "running" && data.isRegistered) {
                         try {
-                            const token = localStorage.getItem("usertoken");
-                            if(!token){
-                                navigate('/',{replace:true});
-                            }
                             const res = await axios.get("http://localhost:3000/test-submission-check", {
                                 params: { testId },
-                                headers: {
-                                    token
-                                }
+                                headers: { token }
                             });
 
                             if (res.data.submitted) {
@@ -99,7 +95,7 @@ export default function TestInfo() {
 
             if (diff <= 0) {
                 clearInterval(interval);
-                window.location.reload(); // Reload page to get new test phase
+                window.location.reload();
                 return;
             }
 
@@ -132,6 +128,10 @@ export default function TestInfo() {
                 if (res.msg === "Registered successfully") {
                     alert(res.msg);
                     setIsRegistered(true);
+
+                    if (phase === "running") {
+                        navigate(`/testInfo/${testId}/live`, { replace: true });
+                    }
                 } else {
                     throw new Error(res.msg || "Registration failed");
                 }
@@ -148,51 +148,159 @@ export default function TestInfo() {
         }
     };
 
-    if (loading) return <div>Loading test info...</div>;
-    if (error) return <div style={{ color: "red" }}>{error}</div>;
+    // NEW: copy helpers
+    const handleCopyTestId = async () => {
+        try {
+            await navigator.clipboard.writeText(testId);
+            setCopiedWhat("id");
+            setTimeout(() => setCopiedWhat(null), 2000);
+        } catch (e) {
+            console.error("Copy failed", e);
+            alert("Failed to copy test id");
+        }
+    };
+
+    const handleCopyLink = async () => {
+        try {
+            const link = `http://localhost:5173/testInfo/${testId}`;
+            await navigator.clipboard.writeText(link);
+            setCopiedWhat("link");
+            setTimeout(() => setCopiedWhat(null), 2000);
+        } catch (e) {
+            console.error("Copy failed", e);
+            alert("Failed to copy link");
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 flex items-center justify-center">
+                <div className="bg-white p-8 rounded-xl shadow-md max-w-md w-full text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+                    <p className="text-gray-700">Loading test info...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 flex items-center justify-center">
+                <div className="bg-white p-8 rounded-xl shadow-md max-w-md w-full">
+                    <div className="text-red-500 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-lg font-medium">{error}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div style={{ padding: "20px" }}>
-            <h2>{title}</h2>
-            <p><strong>Description:</strong> {description}</p>
-            <p><strong>Total Marks:</strong> {totalMarks}</p>
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 p-6">
+            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+                        <p className="text-gray-600">{description}</p>
+                    </div>
 
-            {phase === "upcoming" && (
-                <>
-                    {testTime && (
-                        <p><strong>Start Time:</strong> {testTime.toLocaleString()}</p>
-                    )}
-                    {totalTime && (
-                        <p><strong>Duration:</strong> {totalTime} minutes</p>
-                    )}
-                    <p>Status: <strong>{isRegistered ? "Registered" : "Not Registered"}</strong></p>
+                    {/* NEW: copy buttons */}
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            onClick={handleCopyTestId}
+                            className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm font-medium"
+                        >
+                            {copiedWhat === "id" ? "Copied ID!" : "Copy Test ID"}
+                        </button>
+                        <button
+                            onClick={handleCopyLink}
+                            className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium"
+                        >
+                            {copiedWhat === "link" ? "Copied Link!" : "Copy Link"}
+                        </button>
+                    </div>
+                </div>
 
-                    {testTime && (
-                        <p><strong>Time Remaining:</strong> {countdown}</p>
-                    )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                        <p className="text-sm text-gray-500">Total Marks</p>
+                        <p className="font-medium text-lg">{totalMarks}</p>
+                    </div>
 
-                    {actionError && (
-                        <div style={{ color: "red", marginBottom: "10px" }}>{actionError}</div>
+                    {(phase === "upcoming" || (phase === "running" && !isRegistered)) && testTime && (
+                        <>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <p className="text-sm text-gray-500">Start Time</p>
+                                <p className="font-medium text-lg">{testTime.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <p className="text-sm text-gray-500">Duration</p>
+                                <p className="font-medium text-lg">{totalTime} minutes</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <p className="text-sm text-gray-500">Status</p>
+                                <p className="font-medium text-lg">
+                                    {isRegistered ? (
+                                        <span className="text-green-600">Registered</span>
+                                    ) : (
+                                        <span className="text-yellow-600">Not Registered</span>
+                                    )}
+                                </p>
+                            </div>
+                        </>
                     )}
+                </div>
 
-                    <button
-                        onClick={handleToggleRegistration}
-                        disabled={actionLoading}
-                        style={{
-                            backgroundColor: isRegistered ? "#ff6961" : "#4CAF50",
-                            color: "white",
-                            padding: "10px 20px",
-                            border: "none",
-                            borderRadius: "5px",
-                            cursor: "pointer"
-                        }}
-                    >
-                        {actionLoading
-                            ? (isRegistered ? "Unregistering..." : "Registering...")
-                            : (isRegistered ? "Unregister" : "Register")}
-                    </button>
-                </>
-            )}
+                {(phase === "upcoming" || (phase === "running" && !isRegistered)) && (
+                    <div className="space-y-6">
+                        {(testTime || phase === "running") && (
+                            <div className="bg-indigo-50 p-4 rounded-lg text-center">
+                                <p className="text-sm text-gray-500 mb-2">
+                                    {phase === "running" && !isRegistered ? "Status" : "Time Remaining"}
+                                </p>
+                                <p className="font-mono text-xl font-bold text-indigo-700">
+                                    {phase === "running" && !isRegistered ? "Running" : countdown}
+                                </p>
+                            </div>
+                        )}
+
+                        {actionError && (
+                            <div className="p-3 bg-red-100 text-red-700 rounded-md text-center">
+                                {actionError}
+                            </div>
+                        )}
+
+                        <div className="text-center">
+                            <button
+                                onClick={handleToggleRegistration}
+                                disabled={actionLoading}
+                                className={`px-6 py-3 rounded-lg font-medium text-white transition-colors ${
+                                    isRegistered
+                                        ? "bg-red-600 hover:bg-red-700"
+                                        : "bg-emerald-600 hover:bg-emerald-700"
+                                } ${actionLoading ? "opacity-70 cursor-not-allowed" : ""}`}
+                            >
+                                {actionLoading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        {isRegistered ? "Unregistering..." : "Registering..."}
+                                    </span>
+                                ) : isRegistered ? (
+                                    "Unregister"
+                                ) : (
+                                    "Register"
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

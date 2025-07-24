@@ -24,6 +24,10 @@ export default function AddQuestion({ testId, onCancel }) {
     };
 
     const removeOption = (index) => {
+        if (options.length <= 2) {
+            alert("Minimum 2 options required.");
+            return;
+        }
         const updatedOptions = options.filter((_, i) => i !== index);
         setOptions(updatedOptions);
     };
@@ -39,7 +43,7 @@ export default function AddQuestion({ testId, onCancel }) {
             return;
         }
 
-        // Local validation
+        // Validation
         if (!questionText.trim() || !correctAnswerText.trim()) {
             setError("Question and correct answer are required.");
             return;
@@ -67,12 +71,11 @@ export default function AddQuestion({ testId, onCancel }) {
                 headers: { token }
             });
 
-            console.log("Backend response:", response.data);
-
             setSuccessMessage(response.data.msg || "Question added successfully!");
-            alert(response.data.msg || "Question added successfully!");
-            onCancel();
-            window.location.reload();
+            setTimeout(() => {
+                onCancel();
+                window.location.reload();
+            }, 1500);
         } catch (err) {
             console.error("Error in submission:", err);
             setError(err.response?.data?.error || "Failed to add question");
@@ -80,56 +83,83 @@ export default function AddQuestion({ testId, onCancel }) {
     };
 
     return (
-        <div>
-            <h2>Add New Question</h2>
+       <div className="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto -ml-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Add New Question</h2>
 
+            {/* Status Messages */}
             {error && (
-                <div style={{ color: "red", fontWeight: "bold", marginBottom: "10px" }}>
-                    Error: {error}
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                    <strong>Error:</strong> {error}
                 </div>
             )}
-
             {successMessage && (
-                <div style={{ color: "green", fontWeight: "bold", marginBottom: "10px" }}>
+                <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
                     {successMessage}
                 </div>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Question Text */}
                 <div>
-                    <label>Question:</label><br />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Question</label>
                     <textarea
                         value={questionText}
                         onChange={(e) => {
                             setQuestionText(e.target.value);
                             setError("");
                         }}
-                        rows={3}
+                        rows={4}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         required
+                        placeholder="Enter the question text"
                     />
                 </div>
 
+                {/* Options */}
                 <div>
-                    <label>Options:</label><br />
-                    {options.map((opt, index) => (
-                        <div key={index}>
-                            {index + 1}.{" "}
-                            <input
-                                type="text"
-                                value={opt}
-                                onChange={(e) => handleOptionChange(index, e.target.value)}
-                                required
-                            />
-                            {options.length > 2 && (
-                                <button type="button" onClick={() => removeOption(index)}>Remove</button>
-                            )}
-                        </div>
-                    ))}
-                    <button type="button" onClick={addOption}>+ Add Option</button>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                    <div className="space-y-2">
+                        {options.map((opt, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                                <span className="text-gray-600 w-6">{index + 1}.</span>
+                                <input
+                                    type="text"
+                                    value={opt}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                    placeholder={`Option ${index + 1}`}
+                                />
+                                {options.length > 2 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeOption(index)}
+                                        className="p-2 text-red-600 hover:text-red-800"
+                                        title="Remove option"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={addOption}
+                        className="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm flex items-center gap-1"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                        </svg>
+                        Add Option
+                    </button>
                 </div>
 
+                {/* Correct Answer */}
                 <div>
-                    <label>Correct Answer Text:</label><br />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Correct Answer</label>
                     <input
                         type="text"
                         value={correctAnswerText}
@@ -137,24 +167,40 @@ export default function AddQuestion({ testId, onCancel }) {
                             setCorrectAnswerText(e.target.value);
                             setError("");
                         }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         required
+                        placeholder="Enter the correct answer (must match one option exactly)"
                     />
                 </div>
 
+                {/* Marks */}
                 <div>
-                    <label>Marks:</label><br />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Marks</label>
                     <input
                         type="number"
                         value={marks}
                         onChange={(e) => setMarks(e.target.value)}
                         min="1"
+                        className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         required
                     />
                 </div>
 
-                <div>
-                    <button type="submit">Add Question</button>
-                    <button type="button" onClick={onCancel}>Cancel</button>
+                {/* Buttons */}
+                <div className="flex justify-end gap-3 pt-4">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-sm"
+                    >
+                        Add Question
+                    </button>
                 </div>
             </form>
         </div>

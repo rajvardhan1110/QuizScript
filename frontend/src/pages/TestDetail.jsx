@@ -8,8 +8,6 @@ import DeleteTestButton from "../components/DeleteTestButton";
 import UpdateTestPage from "../components/UpdateTestPage";
 import { toggleTestPhase } from "../api/finaliseTest";
 
-
-
 export default function TestDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -17,10 +15,8 @@ export default function TestDetails() {
     const [testInfoVisible, setTestInfoVisible] = useState(true);
     const [questionsVisible, setQuestionsVisible] = useState(false);
     const [updateVisible, setUpdateVisible] = useState(false);
-
     const [selectedQuestionId, setSelectedQuestionId] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(null);
-
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -44,7 +40,6 @@ export default function TestDetails() {
                     return;
                 }
 
-                // 1. Fetch questions
                 const questionsRes = await axios.post("http://localhost:3000/allquestions", {
                     testId: id
                 }, {
@@ -52,7 +47,6 @@ export default function TestDetails() {
                 });
                 setAllQuestions(questionsRes.data.questions || []);
 
-                // 2. Fetch test admin info
                 const infoRes = await axios.post("http://localhost:3000/adminTestInfo", {
                     testId: id
                 }, {
@@ -148,77 +142,198 @@ export default function TestDetails() {
         }
     }
 
-
-
-    return (
-        <div>
-            <h2>Test Details</h2>
-
-            <div>
-                <button onClick={backButton}>back</button>
-                <button onClick={showTestInfo}>Test Info</button>
-                <button onClick={showQuestions}>Questions</button>
-                <button onClick={showUpdate}>Update Test</button>
-            </div>
-
-            {error && <div style={{ color: "red" }}>{error}</div>}
-
-            {testInfoVisible && (
-                <div>
-                    <div>
-                        <h3>Title: {title}</h3>
-                        <p>Description: {description}</p>
-                        <p>Test Time: {testTime}</p>
-                        <p>Total Time: {totalTime} mins</p>
-                        <p>Total Marks: {totalMark}</p>
-                        <p>Phase: {phase}</p>
-                        <p>Publish Result: {publishResult ? "✅ Published" : "❌ Not Published"}</p>
-                    </div>
-
-                    <DeleteTestButton testId={id} />
-
-                    {phase === "draft" ? (
-                        <button onClick={handleTogglePhase}>Finalize Test</button>
-                    ) : (
-                        <button onClick={handleTogglePhase}>Convert to Draft</button>
-                    )}
-
-                    {testTimeRaw && new Date(testTimeRaw.getTime() + totalTime * 60000) <= new Date() && (
-                        <button onClick={handleTogglePublishResult}>
-                            {publishResult ? "Unpublish Result" : "Publish Result"}
-                        </button>
-                    )}
-
-                </div>
-
-            )}
-
-            {questionsVisible && (
-                <div style={{ display: "flex" }}>
-                    <QuestionPanel
-                        questions={allQuestions}
-                        onSelect={handleCardClick}
-                        selectedIndex={selectedIndex}
-                        testId={id}
-                    />
-                    {selectedQuestionId === "add" ? (
-                        <AddQuestion testId={id} onCancel={() => setSelectedQuestionId(null)} />
-                    ) : (
-                        <QuestionViewer questionId={selectedQuestionId} testId={id} />
-                    )}
-                </div>
-            )}
-
-            {updateVisible && (
-                <UpdateTestPage
-                    testId={id} title={title} description={description} testTime={testTime} totalTime={totalTime}
-                ></UpdateTestPage>
-            )
-
+    async function handleDownload() {
+        try {
+            if (!id) {
+                alert("Test ID is missing.");
+                return;
             }
 
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`http://localhost:3000/export-result?testId=${id}`, {
+                responseType: "blob",
+                headers: { token }
+            });
 
+            const blob = new Blob([response.data], { type: "text/csv" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `test_${title}_results.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
 
+        } catch (error) {
+            console.error("Download error:", error);
+            alert(
+                error?.response?.data?.msg ||
+                "Error downloading CSV. Make sure test has ended."
+            );
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 p-6">
+            <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800">Test Details</h2>
+                    <button
+                        onClick={backButton}
+                        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
+                    >
+                        ← Back to Dashboard
+                    </button>
+                </div>
+
+                {/* Navigation Tabs */}
+                <div className="flex border-b border-gray-200 mb-6">
+                    <button
+                        onClick={showTestInfo}
+                        className={`px-4 py-2 font-medium ${testInfoVisible ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        Test Info
+                    </button>
+                    <button
+                        onClick={showQuestions}
+                        className={`px-4 py-2 font-medium ${questionsVisible ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        Questions ({allQuestions.length})
+                    </button>
+                    <button
+                        onClick={showUpdate}
+                        className={`px-4 py-2 font-medium ${updateVisible ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        Update Test
+                    </button>
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                    <div className="mb-6 p-3 bg-red-100 text-red-700 rounded-md">
+                        {error}
+                    </div>
+                )}
+
+                {/* Test Info Section */}
+                {testInfoVisible && (
+                    <div className="space-y-6">
+                        <div className="bg-gray-50 p-6 rounded-lg">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Test Information</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-sm text-gray-500">Title</p>
+                                    <p className="font-medium">{title}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Description</p>
+                                    <p className="font-medium">{description || "No description"}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Scheduled Time</p>
+                                    <p className="font-medium">{testTime}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Duration</p>
+                                    <p className="font-medium">{totalTime} minutes</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Total Marks</p>
+                                    <p className="font-medium">{totalMark}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Status</p>
+                                    <p className={`font-medium capitalize ${phase === 'draft' ? 'text-yellow-600' : 'text-green-600'}`}>
+                                        {phase}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Results Published</p>
+                                    <p className="font-medium">
+                                        {publishResult ? (
+                                            <span className="text-green-600">✅ Published</span>
+                                        ) : (
+                                            <span className="text-red-600">❌ Not Published</span>
+                                        )}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap gap-4">
+                            <DeleteTestButton testId={id} className="flex-1" />
+
+                            {phase === "draft" ? (
+                                <button
+                                    onClick={handleTogglePhase}
+                                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                                >
+                                    Finalize Test
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleTogglePhase}
+                                    className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors"
+                                >
+                                    Convert to Draft
+                                </button>
+                            )}
+
+                            {testTimeRaw && new Date(testTimeRaw.getTime() + totalTime * 60000) <= new Date() && (
+                                <button
+                                    onClick={handleTogglePublishResult}
+                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                                >
+                                    {publishResult ? "Unpublish Results" : "Publish Results"}
+                                </button>
+                            )}
+
+                            <button
+                                onClick={handleDownload}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                            >
+                                <span>📥</span> Download Results (CSV)
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Questions Section */}
+                {questionsVisible && (
+                    <div className="flex flex-col lg:flex-row gap-6">
+                        {/* Question Panel - now with margin to create space from left edge */}
+                        <div className="lg:w-0.9/3 ml-4">  {/* Added ml-4 for left margin */}
+                            <QuestionPanel
+                                questions={allQuestions}
+                                onSelect={handleCardClick}
+                                selectedIndex={selectedIndex}
+                                testId={id}
+                            />
+                        </div>
+                        {/* Question Viewer - centered in remaining space */}
+                        <div className="lg:w-2/3 mx-auto">  {/* Added mx-auto to center */}
+                            {selectedQuestionId === "add" ? (
+                                <AddQuestion testId={id} onCancel={() => setSelectedQuestionId(null)} />
+                            ) : (
+                                <QuestionViewer questionId={selectedQuestionId} testId={id} />
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Update Section */}
+                {updateVisible && (
+                    <UpdateTestPage
+                        testId={id}
+                        title={title}
+                        description={description}
+                        testTime={testTime}
+                        totalTime={totalTime}
+                    />
+                )}
+            </div>
         </div>
     );
 }
